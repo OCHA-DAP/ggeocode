@@ -16,7 +16,9 @@ Before using ggeocode, you need to compile your local JSON mapping file from the
 
 1. Download the GeoNames ``allCountries.zip`` data file from http://download.geonames.org/export/dump/allCountries.zip
 2. Unzip the archive to get the file ``allCountries.txt`` (approximately 1.5 GB)
-3. Compile a local JSON mapping table using the command below:
+3. Compile a local JSON mapping table using the command below.
+
+Compilation command:
 
     $ python -m ggeocode.parser allCountries.txt > name-map.lines.json
 
