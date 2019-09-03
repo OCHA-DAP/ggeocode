@@ -11,8 +11,8 @@ This code is in the public domain
 """
 
 import fileinput, json, logging, re, sys
-import iso3
-from geocode import normalise
+import ggeocode.iso3
+from ggeocode.coder import normalise
 
 
 #
@@ -87,7 +87,7 @@ def read_geonames (input=None):
         record = dict(zip(keys, row.split("\t")))
 
         # Look up the ISO3 country code
-        country_code = iso3.MAP.get(record['country_code'])
+        country_code = ggeocode.iso3.MAP.get(record['country_code'])
         
         if country_code is not None:
             # Extract the alternate names as well as the normative ones
