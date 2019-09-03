@@ -156,7 +156,14 @@ def write_geonames (mapping_table, output=None):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    mapping_table = read_geonames(fileinput.input())
-    write_geonames(mapping_table)
+
+    if len(sys.argv) != 2:
+        logging.error("Usage: python %s allCountries.txt > name-map.lines.json")
+        sys.exit(2)
+
+    with open(sys.argv[1]) as input:
+        mapping_table = read_geonames(input)
+        
+    write_geonames(mapping_table, sys.stdout)
 
 # end

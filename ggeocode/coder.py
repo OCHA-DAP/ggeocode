@@ -7,11 +7,25 @@ load_name_map(filename)
 Load a prepared geonames map from filename. The parse-geonames.py script prepares the map from the GeoNames
 allCountries.txt file.
 
-geocode_text(text, max_words=0)
+code(text, length=0)
 
-Geocode all word sequences in the text up to max_words long. 
-If max_words==0, geocode the entire text as a single blob.
+Geocode all word sequences in the text up to length words. 
+If length==0, geocode the entire text as a single blob.
 Returns a (possibly-empty) list of matching ISO3 country codes.
+
+Python usage:
+
+    from ggeocode.coder import load_name_map, code
+
+    load_name_map("name-map.lines.json")
+
+    result = code("Ottawa") # ['CAN']
+    result = code("Ottawa KS") # ['USA']
+    result = code("Belleville") # ['CAN', 'FRA', 'USA']
+
+Command-line usage:
+
+    $ python -m ggeocode.coder name-map.lines.json "Ottawa" "Ottawa KS" "LAX"
 
 Started 2019-09 by David Megginson
 This code is in the Public Domain.
@@ -98,7 +112,7 @@ def load_name_map (filename):
     """
     if not name_map:
         loaded_count = 0
-        with open('working/name-country-map.lines.json') as input:
+        with open(filename) as input:
             logger.info("Loading database...")
             for line in input:
                 entry = json.loads(line)
@@ -108,7 +122,7 @@ def load_name_map (filename):
                     logger.info("Read %d entries", loaded_count)
 
 
-def geocode_text (text, length=0):
+def code (text, length=0):
     """ Return the most-likely list of country codes for a text string.
     You must call load_name_map() before invoking this function.
     Will normalise the text, then attempt to geocode multi-word phrases up to
@@ -168,8 +182,14 @@ def geocode_text (text, length=0):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    load_name_map("working/name-country-map.lines.json")
-    for name in sys.argv[1:]:
-        print(name, geocode_text(name, 3))
+
+    if len(sys.argv) < 3:
+        logger.error("Usage: ggeocode-coder <map> <text1> [... <textn>]")
+        sys.exit(2)
+        
+    load_name_map(sys.argv[1])
+
+    for name in sys.argv[2:]:
+        print(name, code(name, 3))
 
 # end

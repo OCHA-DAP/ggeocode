@@ -1,3 +1,6 @@
+/build
+/dist
+/ggeocode.egg-info
 __pycache__
 inputs
 working
