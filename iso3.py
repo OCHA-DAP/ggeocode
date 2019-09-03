@@ -1,3 +1,5 @@
+""" Map of ISO2->ISO3 country codes for GeoNames data """
+
 MAP = {
     "AD": "AND",
     "AE": "ARE",
@@ -249,3 +251,5 @@ MAP = {
     "ZM": "ZMB",
     "ZW": "ZWE"
 }
+
+# end
