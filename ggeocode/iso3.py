@@ -251,5 +251,24 @@ MAP = {
     "ZM": "ZMB",
     "ZW": "ZWE"
 }
+""" Map of ISO2 country codes to ISO3 """
+
+def to_iso3 (iso2_code):
+    """ Map an ISO2 country code to ISO3
+    @param iso2_code: the ISO2 country code (two letters)
+    @returns: an ISO3 country code, or None if not found.
+    """
+    return MAP.get(iso2_code.upper())
+
+def to_iso2 (iso3_code):
+    """ Map an ISO3 country code to ISO2
+    @param iso3_code: the ISO3 country code (three letters)
+    @returns: an ISO2 country code, or None if not found.
+    """
+    iso3_code = iso3_code.upper()
+    for item in MAP.items():
+        if item.value == iso3_code:
+            return item.key
+    return None
 
 # end

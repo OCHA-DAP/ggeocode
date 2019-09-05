@@ -80,22 +80,28 @@ def merge_weight_map(main_map, merge_map):
         return main_map
 
 
-def extract_result_list (weight_map):
+def make_result (text, weight_map):
     """ Extract the (possibly-empty) list of country codes with the highest weight.
     Order is not significant.
+    @param text: the original text
     @param weight_map: a weight map (country codes as keys, weights as values)
     @returns: a list of country codes (may be empty)
     """
     max_keys = []
+    max_score = 0
     if weight_map:
-        max_score = 0
         for key in weight_map:
             if weight_map[key] > max_score:
                 max_keys = [key]
                 max_score = weight_map[key]
             elif weight_map[key] == max_score:
                 max_keys.append(key)
-    return max_keys
+    return {
+        "text": text,
+        "status": True if max_score > 0 else False,
+        "score": max_score,
+        "countries": max_keys,
+    }
         
 #
 # External entry points
@@ -148,16 +154,16 @@ def code (text, length=0):
         raise Exception("No name map loaded. You must call load_name_map(filename) first")
 
     # simplify the text (remove extra spaces and punctuation, and make lower case)
-    text = normalise(text)
+    text_norm = normalise(text)
 
     if length == 0:
         # 0 means just try to geocode the whole thing as a single string
-        weight_map = name_map.get(text)
+        weight_map = name_map.get(text_norm)
     else:
         # an integer >0 means try variable-length phrases
         weight_map = None # map that will hold the merged results
 
-        words = text.split(" ") # make an array of words
+        words = text_norm.split(" ") # make an array of words
 
         # test all phrases >= length words long
         for i in range(length, 0, -1):
@@ -165,7 +171,7 @@ def code (text, length=0):
                 # rejoin the phrase as a string
                 key = " ".join(words[j:j+i])
 
-                if len(key) > 1: # skip single-letter words
+                if len(key) > 1: # skip single letters standing alone
                     result = name_map.get(key)
                     if result:
                         logger.debug("%s: %s", key, result)
@@ -173,7 +179,7 @@ def code (text, length=0):
                         weight_map = merge_weight_map(weight_map, result)
 
     # return a (possibly-empty) list of the country codes with the highest weight
-    return extract_result_list(weight_map)
+    return make_result(text, weight_map)
 
 
 #
@@ -190,6 +196,6 @@ if __name__ == "__main__":
     load_name_map(sys.argv[1])
 
     for name in sys.argv[2:]:
-        print(name, code(name, 3))
+        print(json.dumps(code(name, 3)))
 
 # end
