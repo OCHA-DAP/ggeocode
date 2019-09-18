@@ -10,7 +10,7 @@ Started 2019-09 by David Megginson
 This code is in the public domain
 """
 
-import fileinput, json, logging, re, sys
+import fileinput, json, logging, math, re, sys
 import ggeocode.iso3
 from ggeocode.coder import normalise
 
@@ -47,16 +47,16 @@ keys = (
 
 FEATURE_WEIGHTS = {
     # countries and country-like things
-    'PCL': 3,
-    'PCLD': 3,
-    'PCLF': 3,
-    'PCLI': 3,
-    'PCLIX': 3,
-    'PCLS': 3,
+    'PCL': 5,
+    'PCLD': 5,
+    'PCLF': 5,
+    'PCLI': 5,
+    'PCLIX': 5,
+    'PCLS': 5,
     # administrative subdivisions
-    'ADM1': 2,
+    'ADM1': 4,
     # national or admin1 capital
-    'PPLC': 2,
+    'PPLC': 3,
     'PPLA': 2,
 }
 """ GeoNames feature names that get extra weight """
@@ -118,9 +118,8 @@ def read_geonames (input=None):
                         # raise to the appropriate weight for the feature type
                         weight = FEATURE_WEIGHTS.get(record['feature_code'], 1) # default weight is 1
 
-                        # add a prominance bonus if there are lots of translations
-                        if len(alternate_names) > 5:
-                            weight += 1
+                        # add a prominance bonus if there are lots of alternate name (1 for every 10 names)
+                        weight += math.floor(len(alternate_names) / 8.0)
 
                         # save the new weight if it's not lower than the existing one
                         current_weight = mapping_table[name].get(country_code, 1)
@@ -158,7 +157,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     if len(sys.argv) != 2:
-        logging.error("Usage: python %s allCountries.txt > name-map.lines.json")
+        logging.error("Usage: python %s allCountries.txt > name-map.lines.json", sys.argv[0])
         sys.exit(2)
 
     with open(sys.argv[1]) as input:
