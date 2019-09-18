@@ -172,11 +172,13 @@ def code (text, length=0, min_word_length=2):
                 key = " ".join(words[j:j+i])
 
                 if len(key) >= min_word_length: # skip single letters standing alone
+                    logger.debug("Trying %s...", key)
                     result = name_map.get(key)
                     if result:
-                        logger.debug("%s: %s", key, result)
+                        logger.debug("Match: %s", result)
                         # merge into the combined weight map
                         weight_map = merge_weight_map(weight_map, result)
+                        logger.debug("Current weight map: %s", str(weight_map))
 
     # return a (possibly-empty) list of the country codes with the highest weight
     return make_result(text, weight_map)
@@ -187,15 +189,22 @@ def code (text, length=0, min_word_length=2):
 #
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
 
     arg_parser = argparse.ArgumentParser(description="Geocode text (by country)")
-    arg_parser.add_argument("-l", "--min-word-length", type=int, default=2, help="Minimum-length words to consider as matches.")
-    arg_parser.add_argument("-p", "--max-phrase-length", type=int, default=3, help="Maximum phrase length to geocode.")
     arg_parser.add_argument("-m", "--name-map", required=True, help="File containing pre-compiled name map.")
+    arg_parser.add_argument("-w", "--min-word-length", type=int, default=2, help="Minimum-length words to consider as matches.")
+    arg_parser.add_argument("-p", "--max-phrase-length", type=int, default=3, help="Maximum phrase length to geocode.")
+    arg_parser.add_argument(
+        "-l", "--log-level",
+        default="info",
+        choices={"debug", "info", "warning", "error"},
+        help="Level for logging messages (default: info)."
+    )
     arg_parser.add_argument("strings", nargs="*", help="Text to geocode (if non supplied, read strings from command-line.")
 
     args = arg_parser.parse_args();
+
+    logging.basicConfig(level=args.log_level.upper())
 
     load_name_map(args.name_map)
 
