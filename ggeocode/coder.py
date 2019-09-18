@@ -32,7 +32,7 @@ This code is in the Public Domain.
 
 """
 
-import json, logging, re, sys
+import argparse, json, logging, re, readline, sys
 
 
 #
@@ -128,7 +128,7 @@ def load_name_map (filename):
                     logger.info("Read %d entries", loaded_count)
 
 
-def code (text, length=0):
+def code (text, length=0, min_word_length=2):
     """ Return the most-likely list of country codes for a text string.
     You must call load_name_map() before invoking this function.
     Will normalise the text, then attempt to geocode multi-word phrases up to
@@ -171,7 +171,7 @@ def code (text, length=0):
                 # rejoin the phrase as a string
                 key = " ".join(words[j:j+i])
 
-                if len(key) > 1: # skip single letters standing alone
+                if len(key) >= min_word_length: # skip single letters standing alone
                     result = name_map.get(key)
                     if result:
                         logger.debug("%s: %s", key, result)
@@ -189,13 +189,23 @@ def code (text, length=0):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
-    if len(sys.argv) < 3:
-        logger.error("Usage: ggeocode-coder <map> <text1> [... <textn>]")
-        sys.exit(2)
-        
-    load_name_map(sys.argv[1])
+    arg_parser = argparse.ArgumentParser(description="Geocode text (by country)")
+    arg_parser.add_argument("-l", "--min-word-length", type=int, default=2, help="Minimum-length words to consider as matches.")
+    arg_parser.add_argument("-p", "--max-phrase-length", type=int, default=3, help="Maximum phrase length to geocode.")
+    arg_parser.add_argument("-m", "--name-map", required=True, help="File containing pre-compiled name map.")
+    arg_parser.add_argument("strings", nargs="*", help="Text to geocode (if non supplied, read strings from command-line.")
 
-    for name in sys.argv[2:]:
-        print(json.dumps(code(name, 3)))
+    args = arg_parser.parse_args();
+
+    load_name_map(args.name_map)
+
+    if len(args.strings) > 0:
+        for s in args.strings:
+            print(json.dumps(code(s, length=args.max_phrase_length, min_word_length=args.min_word_length)))
+    else:
+        s = input("ggeocode> ")
+        while s:
+            print(json.dumps(code(s, length=args.max_phrase_length, min_word_length=args.min_word_length)))
+            s = input("ggeocode> ")
 
 # end
