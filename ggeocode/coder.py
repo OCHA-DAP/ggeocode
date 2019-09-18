@@ -206,7 +206,8 @@ if __name__ == "__main__":
 
         def read_input ():
             try:
-                return input("ggeocode> ")
+                s = input("ggeocode> ")
+                return s.strip().lower()
             except EOFError:
                 print("Quitting...")
                 sys.exit(0)
