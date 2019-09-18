@@ -200,10 +200,11 @@ if __name__ == "__main__":
     load_name_map(args.name_map)
 
     if len(args.strings) > 0:
+        # We have strings to geocode on the command line
         for s in args.strings:
             print(json.dumps(code(s, length=args.max_phrase_length, min_word_length=args.min_word_length)))
     else:
-
+        # We'll read input interactively from the console
         def read_input ():
             try:
                 s = input("ggeocode> ")
@@ -212,14 +213,14 @@ if __name__ == "__main__":
                 print("Quitting...")
                 sys.exit(0)
 
-        s = read_input()
-        while s:
+        while True:
+            # Endless console loop
+            s = read_input()
             if s == "exit":
                 sys.exit(0)
             elif s in ("?", "h", "help"):
                 print("Type a string you'd like to geocode (\"exit\" or Ctrl-D to exit)")
             else:
                 print(json.dumps(code(s, length=args.max_phrase_length, min_word_length=args.min_word_length)))
-            s = read_input()
 
 # end
