@@ -128,13 +128,13 @@ def load_name_map (filename):
                     logger.info("Read %d entries", loaded_count)
 
 
-def code (text, length=0, min_word_length=2):
+def code (text, max_words=0):
     """ Return the most-likely list of country codes for a text string.
     You must call load_name_map() before invoking this function.
     Will normalise the text, then attempt to geocode multi-word phrases up to
-    length words. If length is 0, then try to geocode all of the text as a 
+    max_words words. If max_words is 0, then try to geocode all of the text as a 
     single string.
-    For example, if length is 3 and the text string is "In Los Angeles, California"
+    For example, if max_words is 3 and the text string is "In Los Angeles, California"
     this function will try to geocode the following strings:
     "in los angeles"
     "los angeles california"
@@ -146,7 +146,7 @@ def code (text, length=0, min_word_length=2):
     "angeles"
     "california"
     @param text: the text string to geocode
-    @param length: the maximum number of words in each phrase
+    @param max_words: the maximum number of words in each phrase
     @returns: a (possibly-empty) list of country codes with the highest weight
     @see load_name_map
     """
@@ -156,7 +156,7 @@ def code (text, length=0, min_word_length=2):
     # simplify the text (remove extra spaces and punctuation, and make lower case)
     text_norm = normalise(text)
 
-    if length == 0:
+    if max_words == 0:
         # 0 means just try to geocode the whole thing as a single string
         weight_map = name_map.get(text_norm)
     else:
@@ -165,35 +165,34 @@ def code (text, length=0, min_word_length=2):
 
         words = text_norm.split(" ") # make an array of words
 
-        # test all phrases >= length words long
-        for i in range(length, 0, -1):
+        # test all phrases >= max_words words long
+        for i in range(max_words, 0, -1):
             for j in range(0, len(words) - i + 1):
                 # rejoin the phrase as a string
                 key = " ".join(words[j:j+i])
 
-                if len(key) >= min_word_length: # skip single letters standing alone
-                    logger.debug("Trying %s...", key)
-                    result = name_map.get(key)
-                    if result:
-                        logger.debug("Match: %s", result)
-                        # merge into the combined weight map
-                        weight_map = merge_weight_map(weight_map, result)
-                        logger.debug("Current weight map: %s", str(weight_map))
+                logger.debug("Trying %s...", key)
+                result = name_map.get(key)
+                if result:
+                    logger.debug("Match: %s", result)
+                    # merge into the combined weight map
+                    weight_map = merge_weight_map(weight_map, result)
+                    logger.debug("Current weight map: %s", str(weight_map))
 
     # return a (possibly-empty) list of the country codes with the highest weight
     return make_result(text, weight_map)
 
 
 #
-# Command-line script entry point: try to geocode all the arguments, assuming a phrase length of 3
+# Command-line script entry point: try to geocode all the arguments, or read strings from the console.
 #
 
 if __name__ == "__main__":
 
+    # process args
     arg_parser = argparse.ArgumentParser(description="Geocode text (by country)")
     arg_parser.add_argument("-m", "--name-map", required=True, help="File containing pre-compiled name map.")
-    arg_parser.add_argument("-w", "--min-word-length", type=int, default=2, help="Minimum-length words to consider as matches.")
-    arg_parser.add_argument("-p", "--max-phrase-length", type=int, default=3, help="Maximum phrase length to geocode.")
+    arg_parser.add_argument("-w", "--max-words", type=int, default=3, help="Maximum phrase length to geocode (0 means do the whole string).")
     arg_parser.add_argument(
         "-l", "--log-level",
         default="info",
@@ -201,17 +200,19 @@ if __name__ == "__main__":
         help="Level for logging messages (default: info)."
     )
     arg_parser.add_argument("strings", nargs="*", help="Text to geocode (if non supplied, read strings from command-line.")
-
     args = arg_parser.parse_args();
 
+    # set up logging
     logging.basicConfig(level=args.log_level.upper())
 
+    # load the pre-compiled map
     load_name_map(args.name_map)
 
+    # geocode
     if len(args.strings) > 0:
         # We have strings to geocode on the command line
         for s in args.strings:
-            print(json.dumps(code(s, length=args.max_phrase_length, min_word_length=args.min_word_length)))
+            print(json.dumps(code(s, max_words=args.max_words)))
     else:
         # We'll read input interactively from the console
         def read_input ():
@@ -230,6 +231,6 @@ if __name__ == "__main__":
             elif s in ("?", "h", "help"):
                 print("Type a string you'd like to geocode (\"exit\" or Ctrl-D to exit)")
             else:
-                print(json.dumps(code(s, length=args.max_phrase_length, min_word_length=args.min_word_length)))
+                print(json.dumps(code(s, max_words=args.max_words)))
 
 # end
