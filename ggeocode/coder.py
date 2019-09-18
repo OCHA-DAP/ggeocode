@@ -203,9 +203,22 @@ if __name__ == "__main__":
         for s in args.strings:
             print(json.dumps(code(s, length=args.max_phrase_length, min_word_length=args.min_word_length)))
     else:
-        s = input("ggeocode> ")
+
+        def read_input ():
+            try:
+                return input("ggeocode> ")
+            except EOFError:
+                print("Quitting...")
+                sys.exit(0)
+
+        s = read_input()
         while s:
-            print(json.dumps(code(s, length=args.max_phrase_length, min_word_length=args.min_word_length)))
-            s = input("ggeocode> ")
+            if s == "exit":
+                sys.exit(0)
+            elif s in ("?", "h", "help"):
+                print("Type a string you'd like to geocode (\"exit\" or Ctrl-D to exit)")
+            else:
+                print(json.dumps(code(s, length=args.max_phrase_length, min_word_length=args.min_word_length)))
+            s = read_input()
 
 # end
