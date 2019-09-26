@@ -69,7 +69,7 @@ def merge_weight_map(main_map, merge_map):
     @returns: the union of the two maps, with values added.
     """
     if main_map is None:
-        return merge_map
+        return dict(merge_map) # have to copy initially, so that we don't affect the original
     else:
         if merge_map is not None:
             for key in merge_map:
