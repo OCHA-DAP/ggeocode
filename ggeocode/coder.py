@@ -7,6 +7,10 @@ load_name_map(filename)
 Load a prepared geonames map from filename. The parse-geonames.py script prepares the map from the GeoNames
 allCountries.txt file.
 
+load_stop_list(filename)
+
+Load a list of phrases to ignore, one per line.
+
 code(text, length=0)
 
 Geocode all word sequences in the text up to length words. 
@@ -18,6 +22,7 @@ Python usage:
     from ggeocode.coder import load_name_map, code
 
     load_name_map("name-map.lines.json")
+    load_stoplist("stoplist.txt")
 
     result = code("Ottawa") # ['CAN']
     result = code("Ottawa KS") # ['USA']
@@ -47,6 +52,9 @@ WS_PATTERN = re.compile('\W+')
 
 name_map = {}
 """ Compiled map from GeoNames data """
+
+stoplist = set()
+""" List of normalised phrases to ignore """
 
 
 #
@@ -127,6 +135,20 @@ def load_name_map (filename):
                 if (loaded_count % 1000000) == 0:
                     logger.info("Read %d entries", loaded_count)
 
+def load_stoplist(filename):
+    """ Load a stoplist of words and phrases, one per line.
+    Any phrase in this list will not be geocoded.
+    @param filename: the filename containing the stop phrases
+    @see stoplist
+    """
+    with open(filename) as input:
+        logger.info("Loading stoplist...")
+        for line in input:
+            line = re.sub('#.*$', '', line)
+            line = normalise(line)
+            if line:
+                stoplist.add(line)
+
 
 def code (text, max_words=0):
     """ Return the most-likely list of country codes for a text string.
@@ -171,6 +193,9 @@ def code (text, max_words=0):
                 # rejoin the phrase as a string
                 key = " ".join(words[j:j+i])
 
+                if key in stoplist:
+                    continue
+
                 logger.debug("Trying %s...", key)
                 result = name_map.get(key)
                 if result:
@@ -193,6 +218,7 @@ if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description="Geocode text (by country)")
     arg_parser.add_argument("-m", "--name-map", required=True, help="File containing pre-compiled name map.")
     arg_parser.add_argument("-w", "--max-words", type=int, default=3, help="Maximum phrase length to geocode (0 means do the whole string).")
+    arg_parser.add_argument("-s", "--stoplist", help="File containing phrases to ignore (one per line).")
     arg_parser.add_argument(
         "-l", "--log-level",
         default="info",
@@ -207,6 +233,10 @@ if __name__ == "__main__":
 
     # load the pre-compiled map
     load_name_map(args.name_map)
+
+    # load stoplist
+    if args.stoplist:
+        load_stoplist(args.stoplist)
 
     # geocode
     if len(args.strings) > 0:
