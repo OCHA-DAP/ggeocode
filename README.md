@@ -26,9 +26,13 @@ Compilation command:
 
 You need to have compiled your local JSON mapping file first.  Assuming your mapping file is in ``name-map.lines.json``, you can geocode a collection of names using the following syntax:
 
-    $ python -m ggeocode.coder name-map.lines.json Name1 "Name 2" [... NameN]
+    $ python -m ggeocode.coder -s stoplist.txt name-map.lines.json Name1 "Name 2" [... NameN]
 
 The program will print a list of JSON objects (one per line) with the results of geocoding each string, including zero or more ISO3 country codes most-likely associated with each name (the order is not significant). Note that startup time for the command-line version is slow, because it has to read a large database first: the more names you geocode with a single command, the less the overhead will matter.
+
+### Stoplist
+
+There is a sample stoplist in the file ./stoplist.txt, but you can substitute your own. These are common words and phrases that shouldn't be geocoded by themselves (but can be part of a bigger phrase).
 
 ### Command-line example
 
