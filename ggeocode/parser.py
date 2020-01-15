@@ -2,7 +2,7 @@
 
 Usage:
 
-    python parse_geonames.py allCountries.txt > name-map.lines.json
+    python -m ggeocode.parser allCountries.txt > name-map.lines.json
 
 The geocode.py module uses the output.
 
