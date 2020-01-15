@@ -4,5 +4,5 @@
 /ggeocode.egg-info
 /name-country-map.lines.json
 __pycache__
-inputs
-working
+/inputs/allCountries.txt
+/working

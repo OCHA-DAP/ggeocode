@@ -69,23 +69,29 @@ def normalise (s):
     return WS_PATTERN.sub(' ', s).lower().strip()
 
 
-def merge_weight_map(main_map, merge_map):
+def merge_weight_map(main_map, merge_map, num_words):
     """ Merge a new weight map into an existing one.
     If the same key exists in both maps, add the values.
     @param main_map: the existing weight map (may be None)
     @param merge_map: the new weight map to merge (may be None)
+    @param num_words: the number of words in the phrase (more words == higher)
     @returns: the union of the two maps, with values added.
     """
+
+    # weighting formula for multi-word phrases
+    factor = 1 + ((num_words - 1) * 2)
+    logger.debug("%d words, factor %f", num_words, factor)
+    
     if main_map is None:
-        return dict(merge_map) # have to copy initially, so that we don't affect the original
-    else:
-        if merge_map is not None:
-            for key in merge_map:
-                if key in main_map:
-                    main_map[key] += merge_map[key]
-                else:
-                    main_map[key] = merge_map[key]
-        return main_map
+        main_map = dict()
+
+    for key in merge_map:
+        if key in main_map:
+            main_map[key] += merge_map[key] * factor
+        else:
+            main_map[key] = merge_map[key] * factor
+
+    return main_map
 
 
 def make_result (text, weight_map):
@@ -193,7 +199,8 @@ def code (text, max_words=0):
                 # rejoin the phrase as a string
                 key = " ".join(words[j:j+i])
 
-                if key in stoplist:
+                # skip single letters or phrases in the stoplist
+                if len(key) == 1 or key in stoplist:
                     continue
 
                 logger.debug("Trying %s...", key)
@@ -201,7 +208,7 @@ def code (text, max_words=0):
                 if result:
                     logger.debug("Match: %s", result)
                     # merge into the combined weight map
-                    weight_map = merge_weight_map(weight_map, result)
+                    weight_map = merge_weight_map(weight_map, result, i)
                     logger.debug("Current weight map: %s", str(weight_map))
 
     # return a (possibly-empty) list of the country codes with the highest weight
