@@ -1,6 +1,11 @@
+# Stoplist for geocoding
+# These phrases will be ignored by themselves
+# Single letters are already excluded by default
+acc
 ad
 africa
 alt
+alum
 am
 anywhere
 are
@@ -11,14 +16,25 @@ be
 beauty
 behind
 belong
+by
 can
 cares
+carleton
 center
+center
+centre
 centre
 coast
 coin
+daddy
+de
 din
+dog
+dolla
 dont
+down
+du
+earth
 east
 eastern
 endor # probably means the fictional place
@@ -26,33 +42,53 @@ ent
 est
 este
 europe
+fade
+fan
 former
+fucking
+grace
+grand
 hades
+have
 he
 heaven
 hell
 her
+her
 him
+his
 how
-i
 ig
 in
 is
 it
+its
+jupiter
 left
 live
 lol
 love
+mac
 mamma
+mars
 may
 mbv
+mech
 med
+mercury
 middle east
 midlands
 might
+miss
 mom
+mommy
 mother
+mpm
+much
+my
+neptune
 new
+no
 nord
 norte
 north
@@ -68,6 +104,8 @@ nowhere
 oceania
 oeste
 ouest
+our
+ours
 out
 outta
 pacific
@@ -76,8 +114,13 @@ pizza
 race
 right
 rise
+royaume
+run
+rva
+saturn
 she
 should
+so
 somewhere
 south
 south america
@@ -92,13 +135,19 @@ still
 sud
 sur
 that
+their
+theirs
 them
 they
 this
 under
+up
+uranus
 us
 vacation
 valhalla
+venus
+vine
 was
 we
 were
@@ -108,6 +157,7 @@ where
 who
 why
 why
-x
+yes
 you
+your
 
