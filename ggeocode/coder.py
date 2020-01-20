@@ -47,7 +47,7 @@ import argparse, json, logging, re, readline, sys
 logger = logging.getLogger("geocode")
 """ Logger for errors and messages. """
 
-WS_PATTERN = re.compile('\W+')
+WS_PATTERN = re.compile('[\W\d_]+')
 """ Precompiled regular expression for non-word characters. """
 
 name_map = {}
