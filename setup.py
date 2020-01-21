@@ -7,7 +7,7 @@ if sys.version_info < (3,):
     raise RuntimeError("ggeocode requires Python 3 or higher")
 
 setup(name='ggeocode',
-      version="0.4",
+      version="0.5",
       description='Simple Python library for geocoding placenames to countries, using the free GeoNames dataset.',
       author='David Megginson',
       author_email='megginson@un.org',

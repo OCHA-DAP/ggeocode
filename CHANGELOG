@@ -1,3 +1,8 @@
+2020-01-21 Release 0.5:
+	- add support for stoplists
+	- exclude _ and digits from words (replace with whitespace)
+	- add sample stoplist
+
 2019-09-26 Release 0.4:
 	- fix bug that could cause mis-coding during long runs
 	- add command-line options to the coder for log level, etc.
